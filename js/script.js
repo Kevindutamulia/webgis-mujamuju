@@ -29,20 +29,32 @@ function loadData(url, styleOptions, targetLayer, isPoint = false) {
         .then(data => {
             L.geoJSON(data, {
                 style: styleOptions,
-                pointToLayer: function(feature, latlng) {
-                    if(isPoint) return L.circleMarker(latlng, { radius: 6, fillOpacity: 0.8 });
-                    return L.marker(latlng);
-                },
                 onEachFeature: function (feature, layer) {
-                    // Ambil properti utama untuk popup (misal kolom 'nama' atau 'keterangan')
-                    let namaObjek = feature.properties.nama || feature.properties.NAME || "Tanpa Nama";
+                    // Fitur Klik Popup (Akomodir poin 3)
+                    if (feature.properties) {
+                        let tabel = "<table class='table table-sm table-bordered' style='font-size:12px'>";
+                        tabel += "<thead><tr><th colspan='2' class='text-center bg-light'>Informasi Objek</th></tr></thead><tbody>";
+                        
+                        // Looping semua properti yang ada di data
+                        for (let key in feature.properties) {
+                            if (feature.properties[key] !== null) { // Jangan tampilkan yang kosong
+                                tabel += `<tr><td><strong>${key}</strong></td><td>${feature.properties[key]}</td></tr>`;
+                            }
+                        }
+                        tabel += "</tbody></table>";
+                        layer.bindPopup(tabel, { maxWidth: 300 });
+                    }
                     
-                    layer.bindPopup(`<strong>Info:</strong> ${namaObjek}`);
-
-                    // Masukkan ke array pencarian
-                    searchData.push({
-                        name: namaObjek,
-                        layer: layer
+                    // Efek Hover (Opsional agar lebih interaktif)
+                    layer.on({
+                        mouseover: function(e) {
+                            var l = e.target;
+                            l.setStyle({ weight: 5, color: '#666', fillOpacity: 0.7 });
+                        },
+                        mouseout: function(e) {
+                            L.geoJSON().resetStyle(l); // Kembali ke warna asli
+                            targetLayer.resetStyle(l);
+                        }
                     });
                 }
             }).addTo(targetLayer);
