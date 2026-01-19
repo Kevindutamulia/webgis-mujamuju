@@ -1,0 +1,12 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+#map {
+    width: 100%;
+    height: calc(100vh - 56px); /* Tinggi layar dikurangi tinggi navbar */
+    margin-top: 56px;
+}
