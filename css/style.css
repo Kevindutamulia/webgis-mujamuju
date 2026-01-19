@@ -10,3 +10,46 @@ body, html {
     height: calc(100vh - 56px); /* Tinggi layar dikurangi tinggi navbar */
     margin-top: 56px;
 }
+
+/* Style untuk kotak legenda agar terlihat profesional */
+.legend-container {
+    background: white;
+    padding: 10px;
+    line-height: 22px;
+    color: #333;
+    border: 2px solid rgba(0,0,0,0.2);
+    border-radius: 8px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+    font-family: Arial, sans-serif;
+}
+
+.legend-container h6 {
+    margin: 0 0 8px;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 5px;
+}
+
+/* Memastikan lingkaran warna di legenda sejajar dengan teks */
+.legend-container i {
+    vertical-align: middle;
+    margin-top: -2px;
+}
+
+/* Opsional: Mempercantik tampilan tabel di dalam popup */
+.leaflet-popup-content table {
+    width: 100%;
+    margin: 0;
+}
+
+.leaflet-popup-content-wrapper {
+    border-radius: 8px;
+    padding: 5px;
+}
+
+/* Mengatur scroll jika konten popup terlalu panjang */
+.leaflet-popup-content {
+    max-height: 300px;
+    overflow-y: auto;
+}
