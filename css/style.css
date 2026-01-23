@@ -53,3 +53,16 @@ body, html {
     max-height: 300px;
     overflow-y: auto;
 }
+
+/* Memberikan jarak agar tombol Leaflet tidak terlalu mepet ke atas karena navbar */
+.leaflet-top.leaflet-left {
+    margin-top: 10px;
+}
+
+/* Memastikan ikon lokasi terlihat jelas */
+.leaflet-control-locate a {
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
