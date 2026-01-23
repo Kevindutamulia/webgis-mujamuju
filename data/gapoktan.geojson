@@ -1,0 +1,14 @@
+{
+"type": "FeatureCollection",
+"name": "gapoktan",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "id": 1, "Nama": "Asmu Kita", "Komoditas": null }, "geometry": { "type": "Point", "coordinates": [ 110.389178321512773, -7.794822630305151 ] } },
+{ "type": "Feature", "properties": { "id": 2, "Nama": "Anggrek", "Komoditas": null }, "geometry": { "type": "Point", "coordinates": [ 110.387985049447948, -7.800644775092355 ] } },
+{ "type": "Feature", "properties": { "id": 3, "Nama": "Tunjung Biru", "Komoditas": null }, "geometry": { "type": "Point", "coordinates": [ 110.389821811661278, -7.798138333002951 ] } },
+{ "type": "Feature", "properties": { "id": 4, "Nama": "Stroberi", "Komoditas": null }, "geometry": { "type": "Point", "coordinates": [ 110.396437005330853, -7.796046392964506 ] } },
+{ "type": "Feature", "properties": { "id": 5, "Nama": "Mandiri Sejahtera", "Komoditas": null }, "geometry": { "type": "Point", "coordinates": [ 110.397896182082107, -7.799760072277323 ] } },
+{ "type": "Feature", "properties": { "id": 6, "Nama": "Srikandi", "Komoditas": null }, "geometry": { "type": "Point", "coordinates": [ 110.398230374360722, -7.801605901723012 ] } },
+{ "type": "Feature", "properties": { "id": 7, "Nama": "KWT Wanita Sejahtera", "Komoditas": null }, "geometry": { "type": "Point", "coordinates": [ 110.39380297432885, -7.806068275365402 ] } }
+]
+}
