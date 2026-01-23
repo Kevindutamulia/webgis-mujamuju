@@ -1,21 +1,6 @@
 // 1. Inisialisasi Peta (Koordinat Tengah Muja Muju)
 var map = L.map('map').setView([-7.8014, 110.3931], 15);
 
-// Tambahkan kontrol lokasi ke peta
-L.control.locate({
-    position: 'topleft', // Posisi tombol
-    strings: {
-        title: "Tunjukkan lokasi saya"
-    },
-    locateOptions: {
-        enableHighAccuracy: true, // Akurasi tinggi (GPS)
-        maxZoom: 18
-    },
-    flyTo: true, // Animasi terbang ke lokasi
-    cacheLocation: true,
-    showPopup: false // Tidak perlu popup default karena sudah ada lingkaran biru
-}).addTo(map);
-
 // 2. Definisi Basemaps
 var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap'
