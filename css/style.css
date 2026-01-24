@@ -23,6 +23,12 @@ body, html {
     font-family: Arial, sans-serif;
 }
 
+.legend-container {
+    background: white !important;
+    color: black !important;
+    z-index: 1000 !important;
+}
+
 .legend-container h6 {
     margin: 0 0 8px;
     font-weight: bold;
