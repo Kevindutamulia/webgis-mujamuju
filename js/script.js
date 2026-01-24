@@ -100,7 +100,7 @@ var baseMaps = { "OpenStreetMap": osm, "Google Satellite": googleSat };
 var overlayMaps = {
     "Batas Wilayah": {
         "Batas Kampung": layerBatasKampung,
-        "Batas RW": layerBatasRW,
+        "Batas RW": layerBatasRW
     },
     "Kelompok Masyarakat": {
         "Budaya": layerBudaya,
@@ -116,27 +116,31 @@ var overlayMaps = {
     }
 };
 
-// Menggunakan plugin standar Leaflet untuk layer control
 L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
 
 // 7. Penambahan Legenda Visual
 var legend = L.control({position: 'bottomright'});
+
 legend.onAdd = function (map) {
     var div = L.DomUtil.create('div', 'legend-container');
+    
+    // Pastikan styling ini ada agar kotak terlihat putih
     div.style.backgroundColor = 'white';
     div.style.padding = '10px';
     div.style.border = '2px solid rgba(0,0,0,0.2)';
     div.style.borderRadius = '5px';
     div.style.lineHeight = '20px';
 
-    div.innerHTML = '<h6 style="margin-bottom:8px; border-bottom: 1px solid #ccc; padding-bottom: 3px;">Legenda</h6>' +
+    div.innerHTML = '<h6 style="margin-bottom:8px; border-bottom: 1px solid #ccc; padding-bottom: 3px; font-weight:bold;">Legenda</h6>' +
         '<div><i style="background: green; width:12px; height:12px; display:inline-block; margin-right:8px; opacity:0.6;"></i> Batas Kampung</div>' +
         '<div><i style="background: blue; width:12px; height:12px; display:inline-block; margin-right:8px; opacity:0.6;"></i> Batas RW</div>' +
         '<div><i style="background: orange; width:18px; height:4px; display:inline-block; margin-right:5px; margin-bottom:3px;"></i> Jalan Paving</div>' +
-        '<div><i style="background: red; width:12px; height:12px; display:inline-block; border-radius:50%; margin-right:8px;"></i> Fasum</div>' +
-        '<div><i style="background: cyan; width:18px; height:4px; display:inline-block; margin-right:5px; margin-bottom:3px;"></i> Saluran (SAH)</div>';
+        '<div><i style="background: cyan; width:18px; height:4px; display:inline-block; margin-right:5px; margin-bottom:3px;"></i> Saluran (SAH)</div>' +
+        '<div><i style="background: red; width:10px; height:10px; display:inline-block; border-radius:50%; margin-right:8px;"></i> Fasilitas Umum</div>' +
+        '<div><i style="background: black; width:10px; height:10px; display:inline-block; border-radius:50%; margin-right:8px;"></i> CCTV</div>';
     return div;
 };
+
 legend.addTo(map);
 
 // 8. Logika Search Bar
