@@ -13,19 +13,20 @@ var googleSat = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
 
 osm.addTo(map);
 
-// 3. Layer Groups
-var layerFasum = L.layerGroup();
-var layerBudaya = L.layerGroup();
-var layerBankSampah = L.layerGroup();
-var layerGapoktan = L.layerGroup();
-var layerPaudPosyandu = L.layerGroup();
-var layerCCTV = L.layerGroup();
-var layerJalan = L.layerGroup().addTo(map);
-var layerSAH = L.layerGroup();
+// 3. Layer Groups (Definisi semua variabel layer)
+var layerBatasKampung = L.layerGroup().addTo(map);
 var layerBatasRW = L.layerGroup().addTo(map);
-var layerBatasKampung = L.layerGroup();
+var layerJalan = L.layerGroup().addTo(map);
+var layerFasum = L.layerGroup().addTo(map);
 
-// Array untuk menampung data pencarian
+// Layer Group untuk data baru
+var layerBudaya = L.layerGroup().addTo(map);
+var layerBankSampah = L.layerGroup().addTo(map);
+var layerGapoktan = L.layerGroup().addTo(map);
+var layerPaud = L.layerGroup().addTo(map);
+var layerCctv = L.layerGroup().addTo(map);
+var layerSah = L.layerGroup().addTo(map);
+
 var searchData = [];
 
 // 4. Fungsi Loading Data yang Dioptimalkan
@@ -35,8 +36,6 @@ function loadData(url, styleOptions, targetLayer, isPoint = false) {
         .then(data => {
             var geojson = L.geoJSON(data, {
                 style: styleOptions,
-                
-                // Menangani titik (Point) agar muncul sebagai CircleMarker
                 pointToLayer: function(feature, latlng) {
                     if (isPoint) {
                         return L.circleMarker(latlng, {
@@ -49,12 +48,10 @@ function loadData(url, styleOptions, targetLayer, isPoint = false) {
                         });
                     }
                 },
-
                 onEachFeature: function (feature, layer) {
                     if (feature.properties) {
                         let tabel = "<div style='overflow-x:auto;'><table class='table table-sm table-bordered' style='font-size:12px; margin-bottom:0;'>";
                         tabel += "<thead><tr><th colspan='2' class='text-center bg-light'>Informasi Objek</th></tr></thead><tbody>";
-                        
                         for (let key in feature.properties) {
                             if (feature.properties[key] !== null && feature.properties[key] !== "") {
                                 tabel += `<tr><td><strong>${key}</strong></td><td>${feature.properties[key]}</td></tr>`;
@@ -66,12 +63,13 @@ function loadData(url, styleOptions, targetLayer, isPoint = false) {
                         let nama = feature.properties.Nama || feature.properties.nama || feature.properties.REMARK || feature.properties.rw || "Objek";
                         searchData.push({ name: String(nama), layer: layer });
                     }
-                    
                     layer.on({
                         mouseover: function(e) {
                             var l = e.target;
                             l.setStyle({ weight: 5, color: 'cyan', fillOpacity: 0.5 });
-                            if (l.bringToFront) l.bringToFront();
+                            if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                                l.bringToFront(); 
+                            }
                         },
                         mouseout: function(e) {
                             geojson.resetStyle(e.target);
@@ -83,66 +81,63 @@ function loadData(url, styleOptions, targetLayer, isPoint = false) {
         .catch(err => console.error("Gagal memuat GeoJSON:", url, err));
 }
 
-// 5. Eksekusi Load File
+// 5. Eksekusi Load File (Sesuai dengan nama file di folder Anda)
 loadData('data/batas_kampung.geojson', { color: 'green', weight: 3, fillOpacity: 0.1, dashArray: '5,5' }, layerBatasKampung);
 loadData('data/batas_rw.geojson', { color: 'blue', weight: 2, fillOpacity: 0.1 }, layerBatasRW);
 loadData('data/jalan.geojson', { color: 'orange', weight: 4, opacity: 1 }, layerJalan);
+loadData('data/sah.geojson', { color: 'cyan', weight: 3, opacity: 1 }, layerSah);
+
 loadData('data/fasum.geojson', { color: 'red' }, layerFasum, true);
 loadData('data/budaya.geojson', { color: 'purple' }, layerBudaya, true);
 loadData('data/banksampah.geojson', { color: 'darkgreen' }, layerBankSampah, true);
 loadData('data/gapoktan.geojson', { color: 'brown' }, layerGapoktan, true);
-loadData('data/paud_posyandu.geojson', { color: 'pink' }, layerPaudPosyandu, true);
-loadData('data/cctv.geojson', { color: 'black' }, layerCCTV, true);
-loadData('data/sah.geojson', { color: 'cyan', weight: 3 }, layerSAH);
+loadData('data/paud_posyandu.geojson', { color: 'pink' }, layerPaud, true);
+loadData('data/cctv.geojson', { color: 'black' }, layerCctv, true);
 
-// 6. Kontrol Layer
-setTimeout(function() {
-    try {
-        var baseMaps = { 
-            "OpenStreetMap": osm, 
-            "Google Satellite": googleSat 
-        };
+// 6. Kontrol Layer (Dikelompokkan agar lebih rapi)
+var baseMaps = { "OpenStreetMap": osm, "Google Satellite": googleSat };
+var overlayMaps = {
+    "Batas Wilayah": {
+        "Batas Kampung": layerBatasKampung,
+        "Batas RW": layerBatasRW,
+    },
+    "Kelompok Masyarakat": {
+        "Kelompok Budaya": layerBudaya,
+        "Bank Sampah": layerBankSampah,
+        "Gapoktan": layerGapoktan,
+        "PAUD & Posyandu": layerPaud
+    },
+    "Keamanan & Umum": {
+        "CCTV": layerCctv,
+        "Fasilitas Umum": layerFasum
+        "Jalan Lingkungan": layerJalan,
+        "Saluran Air (SAH)": layerSah
 
-        var overlayMaps = {
-            "Batas Wilayah": {
-                "Batas Kampung": layerBatasKampung,
-                "Batas RW": layerBatasRW
-            },
-            "Kelompok Masyarakat": {
-                "Budaya": layerBudaya,
-                "Bank Sampah": layerBankSampah,
-                "Gapoktan": layerGapoktan,
-                "PAUD & Posyandu": layerPaudPosyandu
-            },
-            "Infrastruktur": {
-                "CCTV": layerCCTV,
-                "Saluran Air Hujan (SAH)": layerSAH,
-                "Jalan Lingkungan": layerJalan,
-                "Fasilitas Umum": layerFasum
-            }
-        };
-
-        // Memanggil kontrol layer hanya jika objek map sudah siap
-        if (map) {
-            L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
-
-            // 7. Penambahan Legenda Visual (Ditaruh di sini agar pasti muncul)
-            var legend = L.control({position: 'bottomright'});
-            legend.onAdd = function (map) {
-                var div = L.DomUtil.create('div', 'legend-container');
-                div.innerHTML = '<h6 style="margin-bottom:8px; border-bottom: 1px solid #ccc; padding-bottom: 3px; font-weight:bold;">Legenda</h6>' +
-                    '<div><i style="background: green; width:12px; height:12px; display:inline-block; margin-right:8px; opacity:0.6;"></i> Batas Kampung</div>' +
-                    '<div><i style="background: blue; width:12px; height:12px; display:inline-block; margin-right:8px; opacity:0.6;"></i> Batas RW</div>' +
-                    '<div><i style="background: orange; width:18px; height:4px; display:inline-block; margin-right:5px; margin-bottom:3px;"></i> Jalan Paving</div>' +
-                    '<div><i style="background: red; width:10px; height:10px; display:inline-block; border-radius:50%; margin-right:8px;"></i> Fasum</div>';
-                return div;
-            };
-            legend.addTo(map);
-        }
-    } catch (e) {
-        console.error("Gagal inisialisasi kontrol peta:", e);
     }
-}, 800); // Jeda 800ms untuk memastikan variabel layer sudah terdaftar
+};
+
+L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
+
+// 7. Penambahan Legenda Visual
+var legend = L.control({position: 'bottomright'});
+legend.onAdd = function (map) {
+    var div = L.DomUtil.create('div', 'legend-container');
+    div.style.backgroundColor = 'white';
+    div.style.padding = '10px';
+    div.style.border = '2px solid rgba(0,0,0,0.2)';
+    div.style.borderRadius = '5px';
+    div.style.lineHeight = '20px';
+
+    div.innerHTML = '<h6 style="margin-bottom:8px; border-bottom: 1px solid #ccc; padding-bottom: 3px;">Legenda</h6>' +
+        '<div><i style="background: green; width:12px; height:12px; display:inline-block; margin-right:8px; opacity:0.6;"></i> Batas Kampung</div>' +
+        '<div><i style="background: blue; width:12px; height:12px; display:inline-block; margin-right:8px; opacity:0.6;"></i> Batas RW</div>' +
+        '<div><i style="background: orange; width:18px; height:4px; display:inline-block; margin-right:5px; margin-bottom:3px;"></i> Jalan Paving</div>' +
+        '<div><i style="background: cyan; width:18px; height:4px; display:inline-block; margin-right:5px; margin-bottom:3px;"></i> Saluran Air</div>' +
+        '<div><i style="background: red; width:12px; height:12px; display:inline-block; border-radius:50%; margin-right:8px;"></i> Fasilitas Umum</div>' +
+        '<div><i style="background: black; width:12px; height:12px; display:inline-block; border-radius:50%; margin-right:8px;"></i> CCTV</div>';
+    return div;
+};
+legend.addTo(map);
 
 // 8. Logika Search Bar
 document.getElementById('searchBar').addEventListener('input', function(e) {
