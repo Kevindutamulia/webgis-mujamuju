@@ -1,6 +1,15 @@
 // 1. Inisialisasi Peta (Koordinat Tengah Muja Muju)
 var map = L.map('map').setView([-7.8014, 110.3931], 15);
 
+// --- FITUR BARU: Geolocation (Lokasi Saya) ---
+L.control.locate({
+    position: 'topleft',
+    strings: { title: "Tunjukkan lokasi saya" },
+    locateOptions: { enableHighAccuracy: true, maxZoom: 18 },
+    flyTo: true,
+    showPopup: false
+}).addTo(map);
+
 // 2. Definisi Basemaps
 var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap'
@@ -13,7 +22,7 @@ var googleSat = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}'
 
 osm.addTo(map);
 
-// 3. Layer Groups (Urutan definisinya menentukan urutan tumpukan awal)
+// 3. Layer Groups
 var layerJalan = L.layerGroup().addTo(map);
 var layerFasum = L.layerGroup().addTo(map);
 var layerBudaya = L.layerGroup();
@@ -25,7 +34,6 @@ var layerSAH = L.layerGroup();
 var layerBatasRW = L.layerGroup().addTo(map);
 var layerBatasKampung = L.layerGroup();
 
-// Array untuk menampung data pencarian
 var searchData = [];
 
 // 4. Fungsi Loading Data yang Dioptimalkan
@@ -35,8 +43,6 @@ function loadData(url, styleOptions, targetLayer, isPoint = false) {
         .then(data => {
             var geojson = L.geoJSON(data, {
                 style: styleOptions,
-                
-                // Menangani titik (Point) agar muncul sebagai CircleMarker
                 pointToLayer: function(feature, latlng) {
                     if (isPoint) {
                         return L.circleMarker(latlng, {
@@ -49,35 +55,36 @@ function loadData(url, styleOptions, targetLayer, isPoint = false) {
                         });
                     }
                 },
-
                 onEachFeature: function (feature, layer) {
-                    // Fitur Popup Tabel (Akomodir permintaan informasi detail)
                     if (feature.properties) {
-                        let tabel = "<div style='overflow-x:auto;'><table class='table table-sm table-bordered' style='font-size:12px; margin-bottom:0;'>";
-                        tabel += "<thead><tr><th colspan='2' class='text-center bg-light'>Informasi Objek</th></tr></thead><tbody>";
-                        
+                        let isiPopup = "<div style='max-width:250px;'>";
+
+                        // --- FITUR BARU: Popup Foto Otomatis ---
+                        let foto = feature.properties.Gambar || feature.properties.foto || feature.properties.Foto;
+                        if (foto) {
+                            isiPopup += `<img src="img/${foto}" class="img-fluid rounded mb-2" style="width:100%; height:150px; object-fit:cover;" onerror="this.style.display='none'">`;
+                        }
+
+                        // Tabel Informasi Objek
+                        isiPopup += "<div style='overflow-x:auto;'><table class='table table-sm table-bordered' style='font-size:12px; margin-bottom:0;'><tbody>";
                         for (let key in feature.properties) {
-                            if (feature.properties[key] !== null && feature.properties[key] !== "") {
-                                tabel += `<tr><td><strong>${key}</strong></td><td>${feature.properties[key]}</td></tr>`;
+                            if (feature.properties[key] !== null && feature.properties[key] !== "" && key !== 'Gambar' && key !== 'foto' && key !== 'Foto') {
+                                isiPopup += `<tr><td><strong>${key}</strong></td><td>${feature.properties[key]}</td></tr>`;
                             }
                         }
-                        tabel += "</tbody></table></div>";
-                        layer.bindPopup(tabel, { maxWidth: 300 });
+                        isiPopup += "</tbody></table></div></div>";
+                        layer.bindPopup(isiPopup, { maxWidth: 300 });
 
-                        // Mengisi Array Pencarian (Case-insensitive)
-                        // Mengakomodir berbagai nama kolom (Nama, nama, REMARK, dsb)
+                        // Logika Search Data
                         let nama = feature.properties.Nama || feature.properties.nama || feature.properties.REMARK || feature.properties.rw || "Objek";
                         searchData.push({ name: String(nama), layer: layer });
                     }
                     
-                    // Efek Hover Interaktif
                     layer.on({
                         mouseover: function(e) {
                             var l = e.target;
                             l.setStyle({ weight: 5, color: 'cyan', fillOpacity: 0.5 });
-                            if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-                                l.bringToFront(); // Membawa objek ke depan saat hover
-                            }
+                            if (l.bringToFront) l.bringToFront();
                         },
                         mouseout: function(e) {
                             geojson.resetStyle(e.target);
@@ -86,19 +93,17 @@ function loadData(url, styleOptions, targetLayer, isPoint = false) {
                 }
             }).addTo(targetLayer);
 
-            // Fokuskan peta jika memuat layer jalan (opsional)
-            if (url.includes('jalan.geojson')) {
-                // map.fitBounds(geojson.getBounds()); 
+            // --- FITUR BARU: Pastikan Batas Wilayah Selalu di Belakang ---
+            if (url.includes('batas')) {
+                geojson.bringToBack();
             }
         })
         .catch(err => console.error("Gagal memuat GeoJSON:", url, err));
 }
 
-// 5. Eksekusi Load File (Urutan pemanggilan memengaruhi tumpukan visual)
-// Poligon paling bawah
+// 5. Eksekusi Load File
 loadData('data/batas_kampung.geojson', { color: 'green', weight: 3, fillOpacity: 0.1, dashArray: '5,5' }, layerBatasKampung);
 loadData('data/batas_rw.geojson', { color: 'blue', weight: 2, fillOpacity: 0.1 }, layerBatasRW);
-// Garis dan titik paling atas
 loadData('data/jalan.geojson', { color: 'orange', weight: 4, opacity: 1 }, layerJalan);
 loadData('data/fasum.geojson', { color: 'red' }, layerFasum, true);
 loadData('data/budaya_point.geojson', { color: 'purple' }, layerBudaya, true);
@@ -124,7 +129,7 @@ var overlayMaps = {
     "Infrastruktur": {
         "CCTV": layerCCTV,
         "Saluran Air Hujan (SAH)": layerSAH,
-        "Jalan Lingkungan": layerJalan,
+        "Jalan": layerJalan,
         "Fasilitas Umum": layerFasum,
     }
 };
@@ -135,7 +140,6 @@ L.control.layers(baseMaps, overlayMaps, { collapsed: true }).addTo(map);
 var legend = L.control({position: 'bottomright'});
 legend.onAdd = function (map) {
     var div = L.DomUtil.create('div', 'legend-container');
-    // Styling langsung di JS agar lebih konsisten
     div.style.backgroundColor = 'white';
     div.style.padding = '10px';
     div.style.border = '2px solid rgba(0,0,0,0.2)';
@@ -155,7 +159,6 @@ legend.addTo(map);
 document.getElementById('searchBar').addEventListener('input', function(e) {
     let query = e.target.value.toLowerCase();
     if (query.length > 2) {
-        // Mencari objek yang mengandung kata kunci
         let result = searchData.find(item => item.name.toLowerCase().includes(query));
         if (result) {
             let layer = result.layer;
