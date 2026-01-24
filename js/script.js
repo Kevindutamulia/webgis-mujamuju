@@ -109,7 +109,7 @@ var overlayMaps = {
     },
     "Keamanan & Umum": {
         "CCTV": layerCctv,
-        "Fasilitas Umum": layerFasum
+        "Fasilitas Umum": layerFasum,
         "Jalan Lingkungan": layerJalan,
         "Saluran Air (SAH)": layerSah
 
