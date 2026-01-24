@@ -96,56 +96,53 @@ loadData('data/cctv.geojson', { color: 'black' }, layerCCTV, true);
 loadData('data/sah.geojson', { color: 'cyan', weight: 3 }, layerSAH);
 
 // 6. Kontrol Layer
-var baseMaps = { 
-    "OpenStreetMap": osm, 
-    "Google Satellite": googleSat 
-};
-
-// Pastikan urutan ini sinkron dengan variabel layerGroup di atas
-var overlayMaps = {
-    "Batas Wilayah": {
-        "Batas Kampung": layerBatasKampung,
-        "Batas RW": layerBatasRW
-    },
-    "Kelompok Masyarakat": {
-        "Budaya": layerBudaya,
-        "Bank Sampah": layerBankSampah,
-        "Gapoktan": layerGapoktan,
-        "PAUD & Posyandu": layerPaudPosyandu
-    },
-    "Infrastruktur": {
-        "CCTV": layerCCTV,
-        "Fasilitas Umum": layerFasum,
-        "Saluran Air Hujan (SAH)": layerSAH,
-        "Jalan Lingkungan": layerJalan
-    }
-};
-
-// Tambahkan Kontrol Layer ke Peta
-L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
-
-// 7. Penambahan Legenda Visual
 setTimeout(function() {
-    var legend = L.control({position: 'bottomright'});
-    legend.onAdd = function (map) {
-        var div = L.DomUtil.create('div', 'legend-container');
-        // CSS Style langsung di JS sebagai backup
-        div.style.backgroundColor = 'white';
-        div.style.padding = '10px';
-        div.style.border = '2px solid rgba(0,0,0,0.2)';
-        div.style.borderRadius = '5px';
-        div.style.lineHeight = '20px';
+    try {
+        var baseMaps = { 
+            "OpenStreetMap": osm, 
+            "Google Satellite": googleSat 
+        };
 
-        div.innerHTML = '<h6 style="margin-bottom:8px; border-bottom: 1px solid #ccc; padding-bottom: 3px; font-weight:bold; text-align:center;">Legenda</h6>' +
-            '<div><i style="background: green; width:12px; height:12px; display:inline-block; margin-right:8px; opacity:0.6;"></i> Batas Kampung</div>' +
-            '<div><i style="background: blue; width:12px; height:12px; display:inline-block; margin-right:8px; opacity:0.6;"></i> Batas RW</div>' +
-            '<div><i style="background: orange; width:18px; height:4px; display:inline-block; margin-right:5px; margin-bottom:3px;"></i> Jalan Paving</div>' +
-            '<div><i style="background: cyan; width:18px; height:4px; display:inline-block; margin-right:5px; margin-bottom:3px;"></i> Saluran (SAH)</div>' +
-            '<div><i style="background: red; width:10px; height:10px; display:inline-block; border-radius:50%; margin-right:8px;"></i> Fasum</div>';
-        return div;
-    };
-    legend.addTo(map);
-}, 1000); // Menunggu 1 detik agar semua layer siap
+        var overlayMaps = {
+            "Batas Wilayah": {
+                "Batas Kampung": layerBatasKampung,
+                "Batas RW": layerBatasRW
+            },
+            "Kelompok Masyarakat": {
+                "Budaya": layerBudaya,
+                "Bank Sampah": layerBankSampah,
+                "Gapoktan": layerGapoktan,
+                "PAUD & Posyandu": layerPaudPosyandu
+            },
+            "Infrastruktur": {
+                "CCTV": layerCCTV,
+                "Saluran Air Hujan (SAH)": layerSAH,
+                "Jalan Lingkungan": layerJalan,
+                "Fasilitas Umum": layerFasum
+            }
+        };
+
+        // Memanggil kontrol layer hanya jika objek map sudah siap
+        if (map) {
+            L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(map);
+
+            // 7. Penambahan Legenda Visual (Ditaruh di sini agar pasti muncul)
+            var legend = L.control({position: 'bottomright'});
+            legend.onAdd = function (map) {
+                var div = L.DomUtil.create('div', 'legend-container');
+                div.innerHTML = '<h6 style="margin-bottom:8px; border-bottom: 1px solid #ccc; padding-bottom: 3px; font-weight:bold;">Legenda</h6>' +
+                    '<div><i style="background: green; width:12px; height:12px; display:inline-block; margin-right:8px; opacity:0.6;"></i> Batas Kampung</div>' +
+                    '<div><i style="background: blue; width:12px; height:12px; display:inline-block; margin-right:8px; opacity:0.6;"></i> Batas RW</div>' +
+                    '<div><i style="background: orange; width:18px; height:4px; display:inline-block; margin-right:5px; margin-bottom:3px;"></i> Jalan Paving</div>' +
+                    '<div><i style="background: red; width:10px; height:10px; display:inline-block; border-radius:50%; margin-right:8px;"></i> Fasum</div>';
+                return div;
+            };
+            legend.addTo(map);
+        }
+    } catch (e) {
+        console.error("Gagal inisialisasi kontrol peta:", e);
+    }
+}, 800); // Jeda 800ms untuk memastikan variabel layer sudah terdaftar
 
 // 8. Logika Search Bar
 document.getElementById('searchBar').addEventListener('input', function(e) {
