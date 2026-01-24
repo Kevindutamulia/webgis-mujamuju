@@ -59,13 +59,11 @@ function loadData(url, styleOptions, targetLayer, isPoint = false) {
                     if (feature.properties) {
                         let isiPopup = "<div style='max-width:250px;'>";
 
-                        // --- FITUR BARU: Popup Foto Otomatis ---
                         let foto = feature.properties.Gambar || feature.properties.foto || feature.properties.Foto;
                         if (foto) {
                             isiPopup += `<img src="img/${foto}" class="img-fluid rounded mb-2" style="width:100%; height:150px; object-fit:cover;" onerror="this.style.display='none'">`;
                         }
 
-                        // Tabel Informasi Objek
                         isiPopup += "<div style='overflow-x:auto;'><table class='table table-sm table-bordered' style='font-size:12px; margin-bottom:0;'><tbody>";
                         for (let key in feature.properties) {
                             if (feature.properties[key] !== null && feature.properties[key] !== "" && key !== 'Gambar' && key !== 'foto' && key !== 'Foto') {
@@ -73,9 +71,8 @@ function loadData(url, styleOptions, targetLayer, isPoint = false) {
                             }
                         }
                         isiPopup += "</tbody></table></div></div>";
-                        layer.bindPopup(isiPopup, { maxWidth: 300 });
+                        layer.bindPopup(isiPopup, { maxWidth: 280 });
 
-                        // Logika Search Data
                         let nama = feature.properties.Nama || feature.properties.nama || feature.properties.REMARK || feature.properties.rw || "Objek";
                         searchData.push({ name: String(nama), layer: layer });
                     }
@@ -93,7 +90,6 @@ function loadData(url, styleOptions, targetLayer, isPoint = false) {
                 }
             }).addTo(targetLayer);
 
-            // --- FITUR BARU: Pastikan Batas Wilayah Selalu di Belakang ---
             if (url.includes('batas')) {
                 geojson.bringToBack();
             }

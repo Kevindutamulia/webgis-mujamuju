@@ -53,3 +53,19 @@ body, html {
     max-height: 300px;
     overflow-y: auto;
 }
+
+/* Memastikan gambar di popup pas di tengah */
+.leaflet-popup-content img {
+    display: block;
+    margin: 0 auto;
+}
+
+/* Memperbaiki jarak tombol lokasi agar tidak tertutup navbar */
+.leaflet-top.leaflet-left {
+    margin-top: 65px;
+}
+
+/* Memperlebar popup agar tabel informasi terlihat lega */
+.leaflet-popup-content {
+    width: 260px !important;
+}
